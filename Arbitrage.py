@@ -2,12 +2,22 @@ import numpy as np
 import pandas as pd
 import ccxt
 
-# Getting Binance market data
-binance = ccxt.binance()
-market_binance = binance.load_markets()
+def getprices(exchange, symbol):
+    inst = getattr(ccxt, exchange)
+    df = pd.DataFrame(inst.fetchOHLCV(symbol, limit=60)) # 60 minutes
+    df.columns = ["Time", "Open", "High", "Low", "Close", "Volume"]
+    df.set_index("Time", inplace=True)
+    df.index = pd.to_datetime(df.index, unit="ms")
+    df = df.astype(float)
+    return df
 
-# Getting OKX market data
-okx = ccxt.okx()
-okx_market = okx.load_markets()
+prices = []
+fails = []
 
-print(binance.fetch_ticker("DOGE/USDT"))
+for exchange in ccxt.exchanges:
+    try:
+        prices.append(getprices(exchange, "BTC/USDT"))
+        print("Prices successfully pulled from "+exchange)
+    except:
+        fails.append(exchange)
+        print("Price pull failed for "+exchange)
