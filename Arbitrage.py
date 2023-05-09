@@ -3,7 +3,7 @@ import pandas as pd
 import ccxt
 
 def getprices(exchange, symbol):
-    inst = getattr(ccxt, exchange)
+    inst = getattr(ccxt, exchange)()
     df = pd.DataFrame(inst.fetchOHLCV(symbol, limit=60)) # 60 minutes
     df.columns = ["Time", "Open", "High", "Low", "Close", "Volume"]
     df.set_index("Time", inplace=True)
@@ -21,3 +21,5 @@ for exchange in ccxt.exchanges:
     except:
         fails.append(exchange)
         print("Price pull failed for "+exchange)
+
+#print(getprices("binance", "BTC/USDT"))
